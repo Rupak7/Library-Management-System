@@ -24,7 +24,7 @@
          <columns>
             <TableColumn fx:id="namecol" prefWidth="177.0" text="Name" />
             <TableColumn fx:id="idmcol" prefWidth="115.0" text="Accession No." />
-            <TableColumn fx:id="mobcol" prefWidth="147.0" text="Mobile" />
+            <TableColumn fx:id="mobcol" prefWidth="147.0" text="Due" />
             <TableColumn fx:id="emailcol" prefWidth="160.0" text="Email" />
          </columns>
       </TableView>
