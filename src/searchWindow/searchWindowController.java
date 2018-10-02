@@ -59,7 +59,7 @@
 
     /**
      *
-     * @author abhijeetsinghkhangarot
+     * @author nitishsingh
      */
     public class searchWindowController implements Initializable {
 
@@ -101,7 +101,6 @@
         }
 
         public void startBook() {
-            System.out.println("fuckoff");
             initcolBook();
             connectDB = new ConnectDB();
             LoadDataBook();
@@ -121,14 +120,14 @@
             Connection conn = ConnectDB.getConnections();
             PreparedStatement pst1 = conn.prepareStatement(sql_books);
             ResultSet rst = pst1.executeQuery();
-            startBook();  
+            startBook();
         }
 
         @FXML
         public void member(ActionEvent event) throws SQLException{
 
             String id = memberId.getText();
-            sql_members = "SELECT * FROM tbl_addmember WHERE name LIKE '%"+ id + "%' OR email LIKE '%"+ id +"%' OR mobile LIKE '%"+ id +"%'";
+            sql_members = "SELECT * FROM tbl_addmember WHERE name LIKE '%"+ id + "%' OR email LIKE '%"+ id +"%' OR due LIKE '%"+ id +"%'";
             Connection conn = ConnectDB.getConnections();
             PreparedStatement pst = conn.prepareStatement(sql_members);
             ResultSet rst1 = pst.executeQuery();
@@ -145,7 +144,7 @@
         public void initcolMem(){
             namecol.setCellValueFactory(new PropertyValueFactory<>("name"));
             idmcol.setCellValueFactory(new PropertyValueFactory<>("id"));
-            mobcol.setCellValueFactory(new PropertyValueFactory<>("mobile"));
+            mobcol.setCellValueFactory(new PropertyValueFactory<>("due"));
             emailcol.setCellValueFactory(new PropertyValueFactory<>("email"));
         }
 
@@ -185,10 +184,10 @@
                 while(rs.next()){
                     String name = rs.getString("name");
                     String id = rs.getString("id");
-                    String mobile = rs.getString("mobile");
+                    String due = rs.getString("due");
                     String email = rs.getString("email");
 
-                    listm.add(new Member(name,id,mobile,email));
+                    listm.add(new Member(name,id,due,email));
                 }
 
             } catch (SQLException ex) {
@@ -236,13 +235,13 @@
 
             private final SimpleStringProperty name;
             private final SimpleStringProperty id;
-            private final SimpleStringProperty mobile;
+            private final SimpleStringProperty due;
             private final SimpleStringProperty email;
 
-            public Member(String name,String id, String mobile,String email){
+            public Member(String name,String id, String due,String email){
                 this.name = new SimpleStringProperty(name);
                 this.id = new SimpleStringProperty(id);
-                this.mobile = new SimpleStringProperty(mobile);
+                this.due = new SimpleStringProperty(due);
                 this.email = new SimpleStringProperty(email);
             }
 
@@ -257,7 +256,7 @@
 
 
                 public String getMobile() {
-                    return mobile.get();
+                    return due.get();
                 }
 
 
