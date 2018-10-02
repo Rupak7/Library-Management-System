@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package library_help;
+package library_hello;
 
 import DButils.ConnectDB;
 import java.io.IOException;
@@ -12,8 +12,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -34,6 +39,9 @@ import javafx.stage.StageStyle;
 
 
 public class LibraryController implements Initializable {
+    
+    int fine=0;
+    String MemberID;
     
     @FXML
     private StackPane stackpane;
@@ -69,7 +77,7 @@ public class LibraryController implements Initializable {
     
     @FXML
     private void addBook(ActionEvent event) throws IOException {
-        loadWindow("/Addbook/AddBook.fxml","Add Book","/img/index.png");
+       loadWindow("/Addbook/AddBook.fxml","Add Book","/img/member-add-on-300x300.png");
     }
         
     @FXML
@@ -80,12 +88,12 @@ public class LibraryController implements Initializable {
     
     @FXML
     private void listBook(ActionEvent event) throws IOException {
-        loadWindow("/BookList/BookList.fxml","Book List","/img/images.png");
+        loadWindow("/BookList/BookList.fxml","Book List","/img/member-add-on-300x300.png");
     }
     
     @FXML
     private void MemberList(ActionEvent event) throws IOException {
-        loadWindow("/MemberList/MemberList.fxml","Member List","/img/login-members.png");
+        loadWindow("/MemberList/MemberList.fxml","Member List","/img/member-add-on-300x300.png");
     }
     
     public void loadWindow(String location,String title, String iconPath) throws IOException{
@@ -100,7 +108,7 @@ public class LibraryController implements Initializable {
 
         @FXML
     private void searchWindow(ActionEvent event) throws IOException {
-        loadWindow("/searchWindow/searchWindow.fxml","Member List","/img/login-members.png");
+        loadWindow("/searchWindow/searchWindow.fxml","Member List","/img/member-add-on-300x300.png");
     }
     @FXML
     public void bookIDenter(ActionEvent event) throws SQLException{
@@ -193,19 +201,33 @@ public class LibraryController implements Initializable {
     @FXML
     public void loadInfo(ActionEvent event) throws SQLException{
         issueData = FXCollections.observableArrayList();
-       
         String id = BOOKID.getText();
         String sql = "SELECT * FROM tbl_issue WHERE bookID = '" + id + "'";
         Connection conn = ConnectDB.getConnections();
         PreparedStatement pst = conn.prepareStatement(sql);
         ResultSet rst = pst.executeQuery();
-
+        
         while (rst.next()) {
+            SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
             String BookID = id;
-            String MemberID = rst.getString("memberInput");
+            MemberID = rst.getString("memberInput");
             String issueTime = rst.getString("issueTime");
             int renew_count = rst.getInt("renew_count");
-
+            String curr_time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+            
+            try {
+                Date date1 = myFormat.parse(issueTime);
+                Date date2 = myFormat.parse(curr_time);
+                long diff = (date2.getTime() - date1.getTime())/86400000;
+                if(diff > 15)
+                {
+                    fine=fine+15;
+                }
+            } 
+            catch (ParseException e) {
+                e.printStackTrace();
+            }
+            
             issueData.add("Issued Information: ");
             issueData.add("Issued Time and Date: " + issueTime);
             issueData.add("Renew Count: " + renew_count);
@@ -222,7 +244,7 @@ public class LibraryController implements Initializable {
                 issueData.add("Book Publisher: " + rst2.getString("publisher"));
 
             }
-
+            issueData.add("FINE: Rs." +fine);
             String sql3 = "SELECT * FROM tbl_addmember WHERE id = '" + MemberID + "'";
             Connection con3 = ConnectDB.getConnections();
             PreparedStatement pst3 = con3.prepareStatement(sql3);
@@ -232,8 +254,8 @@ public class LibraryController implements Initializable {
                 issueData.add("Member ID: " + rst3.getString("id"));
                 issueData.add("Member Contact Number: " + rst3.getString("mobile"));
                 issueData.add("Member Email: " + rst3.getString("email"));
+                issueData.add("Due: " +rst3.getString("due"));
             }
-
             listview.getItems().setAll(issueData);
         }
     }
@@ -258,21 +280,30 @@ public class LibraryController implements Initializable {
             alert.showAndWait();
             return;
         }
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("confirm submit operation");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure to submit the book?");
-        Optional<ButtonType> response = alert.showAndWait();
+        
+        Alert alert2 =  new Alert(Alert.AlertType.CONFIRMATION);
+        alert2.setTitle("Confirm fine submission");
+        alert2.setHeaderText(null);
+        alert2.setContentText("Did the issuer submit the fine?");
+        Optional<ButtonType> response = alert2.showAndWait();
         
         if(response.get() == ButtonType.OK)
         {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("confirm submit operation");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure to submit the book?");
+            Optional<ButtonType> response1 = alert.showAndWait();
         
-            String sql = "DELETE FROM tbl_issue WHERE bookID = ?";
-            Connection conn = ConnectDB.getConnections();
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1,id);
-            pst.executeUpdate();
-            pst.close();
+            if(response.get() == ButtonType.OK)
+            {
+        
+                String sql = "DELETE FROM tbl_issue WHERE bookID = ?";
+                Connection conn = ConnectDB.getConnections();
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setString(1,id);
+                pst.executeUpdate();
+                pst.close();
             
             
             Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
@@ -280,9 +311,22 @@ public class LibraryController implements Initializable {
             alert1.setContentText("Book submitted successfully");
             alert1.showAndWait();
             
-        }
+            }
         
+        }
+        else if(response.get() == ButtonType.CANCEL)
+        {
+            fine=0;
+            String sql = "UPDATE tbl_addmember SET due=due+15 WHERE id = '" + MemberID + "'";
+            Connection conn = ConnectDB.getConnections();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.executeUpdate();
+            pst.close();
+            
+            
+        }
     }
+        
     @FXML
     public void renewButton(ActionEvent event) throws SQLException{
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -306,7 +350,6 @@ public class LibraryController implements Initializable {
         }
     }
 }
-    
  
     
 
