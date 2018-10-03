@@ -18,15 +18,20 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 
 
 public class BookListController implements Initializable {
 
     @FXML
     private TableView<Book> tableview;
-    
+    @FXML
+    private TextField searchId;
     @FXML
     private TableColumn<Book, String> titlecol;
     @FXML
@@ -39,6 +44,8 @@ public class BookListController implements Initializable {
     private ConnectDB connectDB;
     
     ObservableList<Book> list= FXCollections.observableArrayList();
+    FilteredList<Book> filterdata = new FilteredList<>(list,e->true);
+    private String sql_books;
     
     
     @Override
@@ -50,7 +57,11 @@ public class BookListController implements Initializable {
         tableview.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
     }
-    
+            public void startBook() {
+            initcol();
+            connectDB = new ConnectDB();
+            LoadData();
+        }
     public void deleteButtonpushed()
     {
         ObservableList<Book> selectedRows,allBooks;
@@ -69,7 +80,61 @@ public class BookListController implements Initializable {
         authorcol.setCellValueFactory(new PropertyValueFactory<>("author"));
         pubcol.setCellValueFactory(new PropertyValueFactory<>("publisher"));
     }
+         @FXML
+        public void search(KeyEvent event) throws SQLException{
+       searchId.textProperty().addListener((observable,oldValue,newValue) ->{
+         /*  try {
+               String id = newValue;
+               sql_books = "SELECT * FROM tbl_addbook WHERE title LIKE '%"+ id + "%' OR author LIKE '%"+ id +"%' OR publisher LIKE '%"+ id +"%'";
+               Connection conn = ConnectDB.getConnections();
+               PreparedStatement pst1 = conn.prepareStatement(sql_books);
+               ResultSet rst = pst1.executeQuery();
+               startBook();
+           } catch (SQLException ex) {
+               Logger.getLogger(searchWindowController.class.getName()).log(Level.SEVERE, null, ex);
+           }
+*/
+         filterdata.setPredicate(Book -> {
+         
+             if (newValue == null || newValue.isEmpty())
+             {
+                 return true;
+             }
+             String lower = newValue.toLowerCase();
+             if (String.valueOf(Book.getTitle()).toLowerCase().contains(lower))
+             {
+                 return true;
+             }
+             else if(String.valueOf(Book.getPublisher()).toLowerCase().contains(lower))
+             {
+                 return true;
+             }
+              else if(String.valueOf(Book.getAuthor()).toLowerCase().contains(lower))
+             {
+                 return true;
+             }
+             return false;
+             
+             
+         
+         
+         
+         });
+         
+       
+       });
+          titlecol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        idcol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        authorcol.setCellValueFactory(new PropertyValueFactory<>("author"));
+        pubcol.setCellValueFactory(new PropertyValueFactory<>("publisher"));
         
+        SortedList<Book> sortdata = new SortedList<>(filterdata);
+        
+        sortdata.comparatorProperty().bind(tableview.comparatorProperty());
+        
+        tableview.setItems(sortdata);
+           
+        }
     public void LoadData(){
         String sql = "SELECT * FROM tbl_addbook";
         try {
