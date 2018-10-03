@@ -36,6 +36,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.*;
 
 
 public class LibraryController implements Initializable {
@@ -176,6 +179,7 @@ public class LibraryController implements Initializable {
         
         if(response.get() == ButtonType.OK)
         {
+            
             String sql = "INSERT INTO tbl_issue (bookID,memberInput) VALUES(?,?)";
             Connection conn = ConnectDB.getConnections();
             
@@ -183,12 +187,22 @@ public class LibraryController implements Initializable {
             pst.setString(1, bookID);
             pst.setString(2, memberInput);
             pst.execute();
+            pst.close();
             
             Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
             alert1.setHeaderText(null);
             alert1.setContentText("Book issued successfully to" + membername.getText());
             alert1.showAndWait();
+            
+            String sql1="DELETE FROM tbl_addbook WHERE id = '"+ bookID+ "'";
+            Connection conn1 = ConnectDB.getConnections();
+            
+            PreparedStatement pst1 = conn1.prepareStatement(sql1);
+            pst1.executeUpdate();
+            pst1.close();
         }
+        
+        
         else
         {
             Alert alert1 = new Alert(Alert.AlertType.ERROR);
@@ -233,7 +247,7 @@ public class LibraryController implements Initializable {
             issueData.add("Renew Count: " + renew_count);
 
             issueData.add("Book Information: ");
-            String sql2 = "SELECT * FROM tbl_addbook WHERE id = '" + BookID + "'";
+            String sql2 = "SELECT * FROM tbl_allbook WHERE id = '" + BookID + "'";
             Connection con2 = ConnectDB.getConnections();
             PreparedStatement pst2 = con2.prepareStatement(sql2);
             ResultSet rst2 = pst2.executeQuery();
@@ -289,6 +303,11 @@ public class LibraryController implements Initializable {
         
         if(response.get() == ButtonType.OK)
         {
+            String sql = "UPDATE tbl_addmember SET due=0 WHERE id = '" + MemberID + "'";
+            Connection conn = ConnectDB.getConnections();
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.executeUpdate();
+            pst.close();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("confirm submit operation");
             alert.setHeaderText(null);
@@ -298,20 +317,28 @@ public class LibraryController implements Initializable {
             if(response.get() == ButtonType.OK)
             {
         
-                String sql = "DELETE FROM tbl_issue WHERE bookID = ?";
-                Connection conn = ConnectDB.getConnections();
-                PreparedStatement pst = conn.prepareStatement(sql);
-                pst.setString(1,id);
-                pst.executeUpdate();
-                pst.close();
+                String sql1 = "DELETE FROM tbl_issue WHERE bookID = ?";
+                Connection conn1 = ConnectDB.getConnections();
+                PreparedStatement pst1 = conn.prepareStatement(sql1);
+                pst1.setString(1,id);
+                pst1.executeUpdate();
+                pst1.close();
+                
+                String sql2 = "INSERT INTO tbl_addbook SELECT * FROM tbl_allbook WHERE id = '" +id+ "'";
+                Connection conn2 = ConnectDB.getConnections();
+                PreparedStatement pst2 = conn.prepareStatement(sql2);
+                pst2.executeUpdate();
+                pst2.close();
+                
+                Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
+                alert1.setHeaderText(null);
+                alert1.setContentText("Book submitted successfully");
+                alert1.showAndWait();
             
-            
-            Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
-            alert1.setHeaderText(null);
-            alert1.setContentText("Book submitted successfully");
-            alert1.showAndWait();
-            
+                
             }
+            
+         
         
         }
         else if(response.get() == ButtonType.CANCEL)
@@ -323,7 +350,27 @@ public class LibraryController implements Initializable {
             pst.executeUpdate();
             pst.close();
             
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("confirm submit operation");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure to submit the book?");
+            Optional<ButtonType> response1 = alert.showAndWait();
+        
+            if(response.get() == ButtonType.OK)
+            {
+        
+                String sql1 = "DELETE FROM tbl_issue WHERE bookID = ?";
+                Connection conn1 = ConnectDB.getConnections();
+                PreparedStatement pst1 = conn.prepareStatement(sql1);
+                pst1.setString(1,id);
+                pst1.executeUpdate();
+                pst1.close();
             
+            }
+            Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
+            alert1.setHeaderText(null);
+            alert1.setContentText("Book submitted successfully");
+            alert1.showAndWait();
         }
     }
         
