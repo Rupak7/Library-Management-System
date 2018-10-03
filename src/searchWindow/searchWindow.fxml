@@ -6,7 +6,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="searchWindow.searchWindowController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="searchWindow.searchWindowController">
    <children>
       <TableView fx:id="atableview" layoutX="14.0" layoutY="47.0" prefHeight="174.0" prefWidth="600.0" AnchorPane.bottomAnchor="184.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="47.0">
         <columns>
@@ -18,8 +18,8 @@
       </TableView>
       <Button layoutX="213.0" layoutY="9.0" mnemonicParsing="false" onAction="#search" text="Go" />
       <Button layoutX="550.0" layoutY="9.0" mnemonicParsing="false" onAction="#member" text="Go" />
-      <TextField fx:id="searchId" layoutX="34.0" layoutY="9.0" onAction="#search" promptText="Search Book" />
-      <TextField fx:id="memberId" layoutX="370.0" layoutY="9.0" onAction="#member" promptText="Search Member" />
+      <TextField fx:id="searchId" layoutX="34.0" layoutY="9.0" onKeyPressed="#search" promptText="Search Book" />
+      <TextField fx:id="memberId" layoutX="370.0" layoutY="9.0" onKeyPressed="#member" promptText="Search Member" />
       <TableView fx:id="tableviewmember" layoutY="221.0" prefHeight="184.0" prefWidth="600.0">
          <columns>
             <TableColumn fx:id="namecol" prefWidth="177.0" text="Name" />
