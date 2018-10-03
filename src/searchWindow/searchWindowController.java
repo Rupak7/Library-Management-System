@@ -26,6 +26,7 @@
     import javafx.event.ActionEvent;
     import javafx.fxml.FXML;
     import javafx.fxml.Initializable;
+    import javafx.scene.input.KeyEvent;
 
 
 
@@ -86,25 +87,47 @@
         }
 
         @FXML
-        public void search(ActionEvent event) throws SQLException{
-
-            String id = searchId.getText();
-            sql_books = "SELECT * FROM tbl_addbook WHERE title LIKE '%"+ id + "%' OR author LIKE '%"+ id +"%' OR publisher LIKE '%"+ id +"%'";
-            Connection conn = ConnectDB.getConnections();
-            PreparedStatement pst1 = conn.prepareStatement(sql_books);
-            ResultSet rst = pst1.executeQuery();
-            startBook();
+        public void search(KeyEvent event) throws SQLException{
+       searchId.textProperty().addListener((observable,oldValue,newValue) ->{
+           try {
+               String id = newValue;
+               if (newValue.isEmpty()) {atableview.getItems().clear();}
+               else {
+               sql_books = "SELECT * FROM tbl_allbook WHERE title LIKE '%"+ id + "%' OR author LIKE '%"+ id +"%' OR publisher LIKE '%"+ id +"%'";
+               Connection conn = ConnectDB.getConnections();
+               PreparedStatement pst1 = conn.prepareStatement(sql_books);
+               ResultSet rst = pst1.executeQuery();
+               startBook();
+               }
+           } catch (SQLException ex) {
+               Logger.getLogger(searchWindowController.class.getName()).log(Level.SEVERE, null, ex);
+           }
+       
+       });
+           
         }
 
         @FXML
-        public void member(ActionEvent event) throws SQLException{
+        public void member(KeyEvent event) throws SQLException{
 
-            String id = memberId.getText();
-            sql_members = "SELECT * FROM tbl_addmember WHERE name LIKE '%"+ id + "%' OR email LIKE '%"+ id +"%' OR due LIKE '%"+ id +"%'";
-            Connection conn = ConnectDB.getConnections();
-            PreparedStatement pst = conn.prepareStatement(sql_members);
-            ResultSet rst1 = pst.executeQuery();
-            startMem();
+            memberId.textProperty().addListener((observable,oldValue,newValue)->{
+                try {
+                    String id = newValue;
+                    if (newValue.isEmpty()) { tableviewmember.getItems().clear();}
+                     else
+                    {
+                    sql_members = "SELECT * FROM tbl_addmember WHERE name LIKE '%"+ id + "%' OR count LIKE '%"+ id +"%' OR due LIKE '%"+ id +"%'";
+                    Connection conn = ConnectDB.getConnections();
+                    PreparedStatement pst = conn.prepareStatement(sql_members);
+                    ResultSet rst1 = pst.executeQuery();
+                    startMem();
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(searchWindowController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        
+        });
+          
         }
 
         public void initcolBook(){
@@ -118,7 +141,7 @@
             namecol.setCellValueFactory(new PropertyValueFactory<>("name"));
             idmcol.setCellValueFactory(new PropertyValueFactory<>("id"));
             mobcol.setCellValueFactory(new PropertyValueFactory<>("due"));
-            emailcol.setCellValueFactory(new PropertyValueFactory<>("email"));
+            emailcol.setCellValueFactory(new PropertyValueFactory<>("count"));
         }
 
         public void LoadDataBook(){
@@ -158,9 +181,9 @@
                     String name = rs.getString("name");
                     String id = rs.getString("id");
                     String due = rs.getString("due");
-                    String email = rs.getString("email");
+                    String count = rs.getString("count");
 
-                    listm.add(new Member(name,id,due,email));
+                    listm.add(new Member(name,id,due,count));
                 }
 
             } catch (SQLException ex) {
@@ -209,13 +232,13 @@
             private final SimpleStringProperty name;
             private final SimpleStringProperty id;
             private final SimpleStringProperty due;
-            private final SimpleStringProperty email;
+            private final SimpleStringProperty count;
 
-            public Member(String name,String id, String due,String email){
+            public Member(String name,String id, String due,String count){
                 this.name = new SimpleStringProperty(name);
                 this.id = new SimpleStringProperty(id);
                 this.due = new SimpleStringProperty(due);
-                this.email = new SimpleStringProperty(email);
+                this.count = new SimpleStringProperty(count);
             }
 
                 public String getName() {
@@ -234,7 +257,7 @@
 
 
                 public String getEmail() {
-                    return email.get();
+                    return count.get();
                 }
             }
     }
