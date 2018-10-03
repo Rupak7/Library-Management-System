@@ -3,11 +3,12 @@
 <?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="BookList.BookListController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="BookList.BookListController">
    <children>
-      <TableView fx:id="tableview" layoutX="14.0" layoutY="14.0" prefHeight="350.0" prefWidth="600.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <TableView fx:id="tableview" layoutY="49.0" prefHeight="283.0" prefWidth="600.0" AnchorPane.bottomAnchor="68.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="49.0">
         <columns>
           <TableColumn fx:id="titlecol" prefWidth="177.0" text="Title" />
           <TableColumn fx:id="idcol" prefWidth="115.0" text="Accession No." />
@@ -16,5 +17,6 @@
         </columns>
       </TableView>
       <JFXButton layoutX="222.0" layoutY="361.0" onAction="#deleteButtonpushed" prefHeight="25.0" prefWidth="122.0" style="-fx-background-color: RED;" text="DELETE" textFill="#f8f5f5" />
+      <TextField fx:id="searchId" layoutX="29.0" layoutY="14.0" onKeyPressed="#search" prefHeight="27.0" prefWidth="296.0" promptText="Search by Title or Author or Publisher" />
    </children>
 </AnchorPane>
